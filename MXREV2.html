@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplication Table Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            overflow: hidden;
+        }
+
+        .container {
+            position: relative;
+            text-align: center;
+            border: 3px solid #007bff;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            height: 600px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #start-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            align-items: center;
+        }
+
+        .start-button {
+            padding: 15px 30px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .start-button:hover {
+            background: #0056b3;
+        }
+
+        #question {
+            margin-top: 20px;
+            padding: 15px;
+            background: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 48px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .answer-buttons {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 0;
+        }
+
+        .answer-button {
+            padding: 10px 15px;
+            background: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 64px;  /* Increased font size */
+            cursor: pointer;
+        }
+
+        .answer-button:hover {
+            background: #218838;
+        }
+
+        #answer-buttons-top-left {
+            top: 20px; left: 20px;
+        }
+
+        #answer-buttons-top-right {
+            top: 20px; right: 20px;
+        }
+
+        #answer-buttons-bottom-left {
+            bottom: 20px; left: 20px;
+        }
+
+        #answer-buttons-bottom-right {
+            bottom: 20px; right: 20px;
+        }
+
+        .answer-buttons.hidden {
+            display: none;
+        }
+
+        #score {
+            margin-bottom: 20px;
+            font-size: 24px;
+            background: #007bff;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none;  /* Hidden on start screen */
+        }
+
+        #time {
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #007bff;
+            display: none;  /* Hidden initially */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 360px) {
+            .container {
+                height: auto;
+                padding: 10px;
+                width: 95%;
+            }
+
+            #question {
+                font-size: 36px;
+            }
+
+            .answer-button {
+                font-size: 48px;  /* Updated font size for better readability */
+            }
+
+            #score {
+                font-size: 18px;
+            }
+
+            #time {
+                font-size: 16px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 30px;
+                width: 80%;
+                max-width: 600px;
+            }
+
+            #question {
+                font-size: 56px;
+            }
+
+            .answer-button {
+                font-size: 64px;  /* Updated font size */
+            }
+        }
+
+        #restart-button {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 18px;
+            cursor: pointer;
+            display: none;  /* Hidden initially */
+        }
+
+        #restart-button:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="start-screen">
+            <h1>Welcome to the Multiplication Table Quiz!</h1>
+            <button id="start-button" class="start-button">Start</button>
+        </div>
+        <div id="score">Score: 0%</div>
+        <div id="time">Time: 0s</div>
+        <div id="question"></div>
+        <div id="answer-buttons-top-left" class="answer-buttons hidden"></div>
+        <div id="answer-buttons-top-right" class="answer-buttons hidden"></div>
+        <div id="answer-buttons-bottom-left" class="answer-buttons hidden"></div>
+        <div id="answer-buttons-bottom-right" class="answer-buttons hidden"></div>
+        <button id="restart-button" class="start-button">Restart</button>  <!-- Restart Button -->
+    </div>
+    <script>
+        const startButton = document.getElementById('start-button');
+        const restartButton = document.getElementById('restart-button');
+        const questionElement = document.getElementById('question');
+        const topLeftButtons = document.getElementById('answer-buttons-top-left');
+        const topRightButtons = document.getElementById('answer-buttons-top-right');
+        const bottomLeftButtons = document.getElementById('answer-buttons-bottom-left');
+        const bottomRightButtons = document.getElementById('answer-buttons-bottom-right');
+        const scoreElement = document.getElementById('score');
+        const timeElement = document.getElementById('time');
+
+        let totalQuestions = 20;
+        let currentQuestion = 0;
+        let score = 0;
+        let startTime;
+        let elapsedTime;
+
+        function updateScore() {
+            const percentage = Math.round((score / totalQuestions) * 100);
+            scoreElement.textContent = `Score: ${percentage}%`;
+        }
+
+        function updateTime() {
+            elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        }
+
+        function generateRandomQuestion() {
+            const table = Math.floor(Math.random() * 9 + 2);
+            const multiplier = Math.floor(Math.random() * 10 + 1);
+            const correctAnswer = table * multiplier;
+            const options = [correctAnswer];
+            while (options.length < 4) {
+                const wrongAnswer = Math.floor(Math.random() * 81 + 2);
+                if (!options.includes(wrongAnswer)) options.push(wrongAnswer);
+            }
+            options.sort(() => Math.random() - 0.5);
+            return { question: `${table} × ${multiplier} = ?`, options, correctAnswer };
+        }
+
+        function showQuestion() {
+            if (currentQuestion >= totalQuestions) {
+                questionElement.textContent = `Quiz Over! Your final score is ${Math.round((score / totalQuestions) * 100)}%.`;
+                timeElement.textContent = `Time: ${elapsedTime}s`;  // Show elapsed time
+                scoreElement.style.display = 'none';  // Hide score when quiz is over
+                timeElement.style.display = 'block';  // Show time when quiz is over
+                restartButton.style.display = 'block';  // Show restart button
+                return;
+            }
+
+            const { question, options, correctAnswer } = generateRandomQuestion();
+            questionElement.textContent = question;
+
+            [topLeftButtons, topRightButtons, bottomLeftButtons, bottomRightButtons].forEach(div => div.innerHTML = '');
+
+            options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = 'answer-button';
+                button.onclick = () => {
+                    if (option === correctAnswer) {
+                        score++;
+                        currentQuestion++;
+                        updateScore();
+                        showQuestion();
+                    } else {
+                        alert('Incorrect, try again!');
+                    }
+                };
+                [topLeftButtons, topRightButtons, bottomLeftButtons, bottomRightButtons][index].appendChild(button);
+            });
+
+            [topLeftButtons, topRightButtons, bottomLeftButtons, bottomRightButtons].forEach(div => div.classList.remove('hidden'));
+
+            updateTime();  // Update the time but don't display it
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            elapsedTime = 0;
+            updateScore();
+            timeElement.textContent = '';  // Clear the time display
+            timeElement.style.display = 'none';  // Hide the time
+            restartButton.style.display = 'none';  // Hide restart button
+            scoreElement.style.display = 'block';  // Show score
+            showQuestion();
+            startTime = Date.now();  // Restart time
+        }
+
+        startButton.addEventListener('click', () => {
+            document.getElementById('start-screen').style.display = 'none';
+            scoreElement.style.display = 'block';  // Show score when quiz starts
+            startTime = Date.now();  // Start time
+            showQuestion();
+            setInterval(updateTime, 1000);  // Update time every second
+        });
+
+        restartButton.addEventListener('click', restartQuiz);  // Restart quiz on button click
+
+        document.getElementById('start-screen').style.display = 'flex';
+    </script>
+</body>
+</html>
